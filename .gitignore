@@ -4,7 +4,8 @@
 *.dll
 *.so
 *.dylib
-
+/tmp
+/tmp_daemon_storage
 # Test binary, build with `go test -c`
 *.test
 
