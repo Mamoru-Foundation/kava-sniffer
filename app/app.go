@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/kava-labs/kava/mamoru_cosmos_sdk"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -953,6 +954,13 @@ func NewApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// It needs to be called after `app.mm` and `app.configurator` are set.
 	app.RegisterUpgradeHandlers()
+
+	////////////////////////// MAMORU SNIFFER //////////////////////////
+	getTStoreFunc := func(ctx sdk.Context) sdk.KVStore {
+		return ctx.TransientStore(tkeys[evmtypes.TransientKey])
+	}
+	bApp.SetStreamingService(mamoru_cosmos_sdk.NewStreamingService(logger, mamoru_cosmos_sdk.NewSniffer(logger), getTStoreFunc))
+	////////////////////////// MAMORU SNIFFER //////////////////////////
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
