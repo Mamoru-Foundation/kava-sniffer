@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	PolishTime      = 10
+	PolishTimeSec   = 10
 	DefaultTNApiUrl = "http://localhost:26657/status"
 )
 
@@ -36,9 +36,9 @@ func init() {
 			}
 			switch keyvals[1].(level.Value).String() {
 			case "debug":
-				return term.FgBgColor{}
+				return term.FgBgColor{Fg: term.Green}
 			case "error":
-				return term.FgBgColor{}
+				return term.FgBgColor{Fg: term.DarkRed}
 			default:
 				return term.FgBgColor{}
 			}
@@ -75,7 +75,7 @@ type Sniffer struct {
 
 func NewSniffer(logger log.Logger) *Sniffer {
 	tmApiUrl := getEnv("MAMORU_TM_API_URL", DefaultTNApiUrl)
-	httpClient := sync_state.NewHTTPRequest(logger, tmApiUrl, PolishTime, isSnifferEnabled())
+	httpClient := sync_state.NewHTTPRequest(logger, tmApiUrl, PolishTimeSec, isSnifferEnabled())
 
 	return &Sniffer{
 		logger: logger,
@@ -85,7 +85,7 @@ func NewSniffer(logger log.Logger) *Sniffer {
 
 // IsSynced returns true if the sniffer is synced with the chain
 func (s *Sniffer) IsSynced() bool {
-	s.logger.Info("Mamoru Sniffer sync status", "sync", s.sync.GetSyncData().IsSync(),
+	s.logger.Info("Mamoru Sniffer sync", "sync", s.sync.GetSyncData().IsSync(),
 		"block", s.sync.GetSyncData().GetCurrentBlockNumber())
 
 	return s.sync.GetSyncData().IsSync()

@@ -12,12 +12,18 @@ RUN apt-get update  \
 WORKDIR /root/kava
 # default home directory is /root
 
+# Copy the two files in place and fix different path/locations inside the Docker image
+COPY root-config /root/
+RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
+RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+
 # Copy dependency files first to facilitate dependency caching
 COPY ./go.mod ./
 COPY ./go.sum ./
 
 # Download dependencies
-RUN --mount=type=cache,target=/root/.cache/go-build \
+RUN --mount=type=ssh \
+    --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     go version && go mod download
 

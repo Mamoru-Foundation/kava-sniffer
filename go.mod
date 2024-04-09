@@ -208,7 +208,7 @@ replace (
 	// See https://github.com/cosmos/cosmos-sdk/pull/13093
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
 	// Use ethermint fork that respects min-gas-price with NoBaseFee true and london enabled, and includes eip712 support
-	github.com/evmos/ethermint => github.com/kava-labs/ethermint v0.21.0-kava-v24-0
+	//github.com/evmos/ethermint => github.com/kava-labs/ethermint v0.21.0-kava-v24-0
 	// See https://github.com/cosmos/cosmos-sdk/pull/10401, https://github.com/cosmos/cosmos-sdk/commit/0592ba6158cd0bf49d894be1cef4faeec59e8320
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
 	// Use the cosmos modified protobufs
@@ -222,7 +222,14 @@ replace (
 )
 
 require (
-	github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.0
+	github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.1
 	github.com/go-kit/log v0.2.1
 	gotest.tools/v3 v3.4.0
 )
+
+replace github.com/evmos/ethermint => github.com/Mamoru-Foundation/ethermint v0.21.0-kava-v24-0
+
+//replace (
+//	github.com/Mamoru-Foundation/mamoru-sniffer-go => ../mamoru-sniffer-go
+//  github.com/evmos/ethermint => ../ethermint
+//)

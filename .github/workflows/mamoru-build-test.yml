@@ -38,12 +38,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-#      - name: Setup SSH for Private Repository Access
-#        uses: webfactory/ssh-agent@v0.9.0
-#        with:
-#          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Setup SSH for Private Repository Access
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.MAMORU_ETHERMINT_SSH_PRIVATE_KEY }}
 
       - name: Test and Build with Makefile
         run: |
+          export GOPRIVATE=github.com/Mamoru-Foundation/*
           go mod download
           make build

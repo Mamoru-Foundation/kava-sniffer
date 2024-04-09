@@ -214,8 +214,10 @@ github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.5.0/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
-github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.0 h1:bp9B+Ah6tZb1Mq++l+U+x1/fg0bJJrSzY8Yp1WIlRWg=
-github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.0/go.mod h1:u2UBuNW7Wxz5sL533/hygPYIt25EDGmWzoUuZ9XqtGo=
+github.com/Mamoru-Foundation/ethermint v0.21.0-kava-v24-0 h1:spRjh9r9Z4TC+JJHsDdqvQ2niF1KMK4fKAK9b+uupuU=
+github.com/Mamoru-Foundation/ethermint v0.21.0-kava-v24-0/go.mod h1:rdm6AinxZ4dzPEv/cjH+/AGyTbKufJ3RE7M2MDyklH0=
+github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.1 h1:IuQkAngj38miEswwB3wb+fNwynB7Rseq8anC8tvO43Q=
+github.com/Mamoru-Foundation/mamoru-sniffer-go v0.12.1/go.mod h1:u2UBuNW7Wxz5sL533/hygPYIt25EDGmWzoUuZ9XqtGo=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
@@ -810,8 +812,6 @@ github.com/kava-labs/cometbft-db v0.7.0-rocksdb-v7.9.2-kava.1 h1:EZnZAkZ+dqK+1OM
 github.com/kava-labs/cometbft-db v0.7.0-rocksdb-v7.9.2-kava.1/go.mod h1:mI/4J4IxRzPrXvMiwefrt0fucGwaQ5Hm9IKS7HnoJeI=
 github.com/kava-labs/cosmos-sdk v0.46.11-kava.3 h1:TOhyyW/xHso/9uIOgYdsrOWDIhXi6foORWZxVRe/wS0=
 github.com/kava-labs/cosmos-sdk v0.46.11-kava.3/go.mod h1:bSUUbmVwWkv1ZNVTWrQHa/i+73xIUvYYPsCvl5doiCs=
-github.com/kava-labs/ethermint v0.21.0-kava-v24-0 h1:bIEw/wkmgNx2GxaQjAa/nbIuGEwcvBBU15QvR5C3Fow=
-github.com/kava-labs/ethermint v0.21.0-kava-v24-0/go.mod h1:rdm6AinxZ4dzPEv/cjH+/AGyTbKufJ3RE7M2MDyklH0=
 github.com/kava-labs/tm-db v0.6.7-kava.4 h1:M2RibOKmbi+k2OhAFry8z9+RJF0CYuDETB7/PrSdoro=
 github.com/kava-labs/tm-db v0.6.7-kava.4/go.mod h1:70tpLhNfwCP64nAlq+bU+rOiVfWr3Nnju1D1nhGDGKs=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=

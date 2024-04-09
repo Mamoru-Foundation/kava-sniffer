@@ -93,22 +93,22 @@ func (sync *JSONRPCResponse) IsSync() bool {
 }
 
 type Client struct {
-	logger     log.Logger
-	syncData   *JSONRPCResponse
-	Url        string
-	PolishTime uint
+	logger        log.Logger
+	syncData      *JSONRPCResponse
+	Url           string
+	PolishTimeSec uint
 
 	quit    chan struct{}
 	signals chan os.Signal
 }
 
-func NewHTTPRequest(logget log.Logger, url string, PolishTime uint, enable bool) *Client {
+func NewHTTPRequest(logget log.Logger, url string, PolishTimeSec uint, enable bool) *Client {
 	c := &Client{
-		logger:     logget,
-		Url:        url,
-		PolishTime: PolishTime,
-		quit:       make(chan struct{}),
-		signals:    make(chan os.Signal, 1),
+		logger:        logget,
+		Url:           url,
+		PolishTimeSec: PolishTimeSec,
+		quit:          make(chan struct{}),
+		signals:       make(chan os.Signal, 1),
 	}
 
 	// Register for SIGINT (Ctrl+C) and SIGTERM (kill) signals
@@ -125,8 +125,9 @@ func (c *Client) GetSyncData() *JSONRPCResponse {
 }
 
 func (c *Client) loop() {
+	// wait for 2 minutes for the node to start
 	time.Sleep(2 * time.Minute)
-	ticker := time.NewTicker(time.Duration(c.PolishTime) * time.Second)
+	ticker := time.NewTicker(time.Duration(c.PolishTimeSec) * time.Second)
 	defer ticker.Stop()
 	// Perform the first tick immediately
 	c.fetchSyncStatus()

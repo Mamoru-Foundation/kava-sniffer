@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/kava-labs/kava/mamoru_cosmos_sdk"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -156,8 +157,6 @@ import (
 	validatorvesting "github.com/kava-labs/kava/x/validator-vesting"
 	validatorvestingrest "github.com/kava-labs/kava/x/validator-vesting/client/rest"
 	validatorvestingtypes "github.com/kava-labs/kava/x/validator-vesting/types"
-
-	"github.com/kava-labs/kava/mamoru_cosmos_sdk"
 )
 
 const (
@@ -367,9 +366,6 @@ func NewApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
-	////////////////////////// MAMORU SNIFFER //////////////////////////
-	bApp.SetStreamingService(mamoru_cosmos_sdk.NewStreamingService(logger, mamoru_cosmos_sdk.NewSniffer(logger)))
-	////////////////////////// MAMORU SNIFFER //////////////////////////
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
@@ -958,6 +954,10 @@ func NewApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// It needs to be called after `app.mm` and `app.configurator` are set.
 	app.RegisterUpgradeHandlers()
+
+	////////////////////////// MAMORU SNIFFER //////////////////////////
+	bApp.SetStreamingService(mamoru_cosmos_sdk.NewStreamingService(logger, mamoru_cosmos_sdk.NewSniffer(logger), app.evmKeeper))
+	////////////////////////// MAMORU SNIFFER //////////////////////////
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//

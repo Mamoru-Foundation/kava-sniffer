@@ -12,27 +12,36 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	"github.com/evmos/ethermint/x/evm/types/mamoru"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/libs/log"
+	types2 "github.com/tendermint/tendermint/types"
 )
 
 var _ baseapp.StreamingService = (*StreamingService)(nil)
 
 type StreamingService struct {
-	logger             log.Logger
+	logger log.Logger
+
 	blockMetadata      types.BlockMetadata
 	currentBlockNumber int64
-	storeListeners     []*types.MemoryListener
+	callFrame          []*mamoru.CallFrame
 
-	sniffer *Sniffer
+	storeListeners []*types.MemoryListener
+
+	sniffer   *Sniffer
+	evmkeeper *evmkeeper.Keeper
 }
 
-func NewStreamingService(logger log.Logger, sniffer *Sniffer) *StreamingService {
+func NewStreamingService(logger log.Logger, sniffer *Sniffer, evmKeeper *evmkeeper.Keeper) *StreamingService {
 	logger.Info("Mamoru StreamingService start")
 
 	return &StreamingService{
-		sniffer: sniffer,
-		logger:  logger,
+		sniffer:   sniffer,
+		logger:    logger,
+		evmkeeper: evmKeeper,
 	}
 }
 
@@ -42,6 +51,8 @@ func (ss *StreamingService) ListenBeginBlock(ctx context.Context, req abci.Reque
 	ss.blockMetadata.ResponseBeginBlock = &res
 	ss.currentBlockNumber = req.Header.Height
 	ss.logger.Info("Mamoru ListenBeginBlock", "height", ss.currentBlockNumber)
+
+	ss.callFrame = []*mamoru.CallFrame{}
 
 	return nil
 }
@@ -53,7 +64,31 @@ func (ss *StreamingService) ListenDeliverTx(ctx context.Context, req abci.Reques
 		Response: &res,
 	})
 
+	transientStore := ss.evmkeeper.GetTransientStore(sdktypes.UnwrapSDKContext(ctx))
+	takeCallFrames(ss.logger, transientStore, ss.currentBlockNumber, &ss.callFrame)
+
 	return nil
+}
+
+func takeCallFrames(logger log.Logger, storage types.KVStore, blockHeight int64, callFrame *[]*mamoru.CallFrame) {
+	tracerId := storage.Get([]byte(mamoru.KeyName))
+	if tracerId == nil {
+		return
+	}
+
+	calls := storage.Get(mamoru.TraceID(blockHeight, string(tracerId)))
+	callFrameArr, err := mamoru.UnmarshalCallFrames(calls)
+	if err != nil {
+		logger.Error("Mamoru ListenDeliverTx", "error", err)
+		return
+	}
+
+	if tracerId == nil {
+		return
+	}
+
+	*callFrame = append(*callFrame, callFrameArr...)
+	logger.Info("Mamoru ListenDeliverTx", "height", blockHeight, "callFrame", len(*callFrame), "total.ss.callFrame", len(callFrameArr))
 }
 
 func (ss *StreamingService) ListenEndBlock(ctx context.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) error {
@@ -74,6 +109,7 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 
 	var eventCount uint64 = 0
 	var txCount uint64 = 0
+	var callTracesCount uint64 = 0
 	builder := cosmos.NewCosmosCtxBuilder()
 
 	blockHeight := uint64(ss.blockMetadata.RequestEndBlock.Height)
@@ -170,12 +206,14 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 		})
 	}
 
-	for _, tx := range ss.blockMetadata.DeliverTxs {
-		txCount++
+	for txIndex, tx := range ss.blockMetadata.DeliverTxs {
+		txHash := bytes.HexBytes(types2.Tx(tx.Request.Tx).Hash()).String()
 		builder.AppendTxs([]cosmos.Transaction{
 			{
 				Seq:       blockHeight,
 				Tx:        tx.Request.Tx,
+				TxHash:    txHash,
+				TxIndex:   uint32(txIndex),
 				Code:      tx.Response.Code,
 				Data:      tx.Response.Data,
 				Log:       tx.Response.Log,
@@ -186,6 +224,28 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 			},
 		})
 
+		for _, call := range ss.callFrame {
+			callTracesCount++
+			builder.AppendEvmCallTraces([]cosmos.EvmCallTrace{
+				{
+					TxHash:       txHash,
+					TxIndex:      call.TxIndex,
+					BlockIndex:   ss.currentBlockNumber,
+					Depth:        call.Depth,
+					Type:         call.Type,
+					From:         call.From,
+					To:           call.To,
+					Value:        call.Value,
+					GasLimit:     call.Gas,
+					GasUsed:      call.GasUsed,
+					Input:        call.Input,
+					Output:       call.Output,
+					Error:        call.Error,
+					RevertReason: call.RevertReason,
+				},
+			})
+		}
+
 		for _, event := range tx.Response.Events {
 			eventCount++
 			builder.AppendEvents([]cosmos.Event{
@@ -194,6 +254,7 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 					EventType: event.Type,
 				},
 			})
+
 			for _, attribute := range event.Attributes {
 				builder.AppendEventAttributes([]cosmos.EventAttribute{
 					{
@@ -206,6 +267,8 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 				})
 			}
 		}
+
+		txCount++
 	}
 
 	for _, event := range ss.blockMetadata.ResponseEndBlock.Events {
@@ -236,11 +299,11 @@ func (ss *StreamingService) ListenCommit(ctx context.Context, res abci.ResponseC
 	eventCount = 0
 	txCount = 0
 
-	builder.SetStatistics(uint64(1), statTxs, statEvn, 0)
+	builder.SetStatistics(uint64(1), statTxs, statEvn, callTracesCount)
 
 	cosmosCtx := builder.Finish()
 
-	ss.logger.Info("Mamoru Send", "height", ss.currentBlockNumber, "txs", statTxs, "events", statEvn)
+	ss.logger.Info("Mamoru Send", "height", ss.currentBlockNumber, "txs", statTxs, "events", statEvn, "callTraces", callTracesCount)
 
 	if client := ss.sniffer.Client(); client != nil {
 		client.ObserveCosmosData(cosmosCtx)
