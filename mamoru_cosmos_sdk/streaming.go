@@ -12,7 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	"github.com/evmos/ethermint/x/evm/types/mamoru"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/bytes"
@@ -31,17 +30,17 @@ type StreamingService struct {
 
 	storeListeners []*types.MemoryListener
 
-	sniffer   *Sniffer
-	evmkeeper *evmkeeper.Keeper
+	sniffer       *Sniffer
+	getTStoreFunc func(ctx sdktypes.Context) types.KVStore
 }
 
-func NewStreamingService(logger log.Logger, sniffer *Sniffer, evmKeeper *evmkeeper.Keeper) *StreamingService {
+func NewStreamingService(logger log.Logger, sniffer *Sniffer, getTStoreFunc func(ctx sdktypes.Context) types.KVStore) *StreamingService {
 	logger.Info("Mamoru StreamingService start")
 
 	return &StreamingService{
-		sniffer:   sniffer,
-		logger:    logger,
-		evmkeeper: evmKeeper,
+		sniffer:       sniffer,
+		logger:        logger,
+		getTStoreFunc: getTStoreFunc,
 	}
 }
 
@@ -64,7 +63,7 @@ func (ss *StreamingService) ListenDeliverTx(ctx context.Context, req abci.Reques
 		Response: &res,
 	})
 
-	transientStore := ss.evmkeeper.GetTransientStore(sdktypes.UnwrapSDKContext(ctx))
+	transientStore := ss.getTStoreFunc(sdktypes.UnwrapSDKContext(ctx))
 	takeCallFrames(ss.logger, transientStore, ss.currentBlockNumber, &ss.callFrame)
 
 	return nil

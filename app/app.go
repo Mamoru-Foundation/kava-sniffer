@@ -956,7 +956,10 @@ func NewApp(
 	app.RegisterUpgradeHandlers()
 
 	////////////////////////// MAMORU SNIFFER //////////////////////////
-	bApp.SetStreamingService(mamoru_cosmos_sdk.NewStreamingService(logger, mamoru_cosmos_sdk.NewSniffer(logger), app.evmKeeper))
+	getTStoreFunc := func(ctx sdk.Context) sdk.KVStore {
+		return ctx.TransientStore(tkeys[evmtypes.TransientKey])
+	}
+	bApp.SetStreamingService(mamoru_cosmos_sdk.NewStreamingService(logger, mamoru_cosmos_sdk.NewSniffer(logger), getTStoreFunc))
 	////////////////////////// MAMORU SNIFFER //////////////////////////
 
 	// create the simulation manager and define the order of the modules for deterministic simulations

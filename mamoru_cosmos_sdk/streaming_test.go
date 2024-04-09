@@ -1,7 +1,7 @@
 package mamoru_cosmos_sdk
 
 import (
-	"context"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"testing"
 	"time"
 
@@ -14,10 +14,19 @@ import (
 
 func TestListenBeginBlock(t *testing.T) {
 	t.Run("TestListenBeginBlock", func(t *testing.T) {
-		logger := log.TestingLogger()
-		ss := NewStreamingService(logger.With("module", "mamoru"), nil)
 
-		ctx := context.Background()
+		logger := log.TestingLogger()
+		header := tmprototypes.Header{}
+		ischeck := true
+		ctx := sdk.NewContext(nil, header, ischeck, logger)
+		sdkctx := sdk.UnwrapSDKContext(ctx)
+
+		getTStoreFunc := func(ctx sdk.Context) sdk.KVStore {
+			return sdkctx.TransientStore(sdk.NewKVStoreKey("somekey"))
+		}
+
+		ss := NewStreamingService(logger.With("module", "mamoru"), nil, getTStoreFunc)
+
 		req := tmabci.RequestBeginBlock{Header: tmprototypes.Header{
 			Version:            tmversion.Consensus{},
 			ChainID:            "",
@@ -30,9 +39,8 @@ func TestListenBeginBlock(t *testing.T) {
 			NextValidatorsHash: []byte{'a', 'b', 'c'},
 			ConsensusHash:      []byte{'a', 'b', 'c'},
 			AppHash:            []byte{'a', 'b', 'c'},
-			LastResultsHash:    []byte{'a', 'b', 'c'},
-			EvidenceHash:       []byte{'a', 'b', 'c'},
-			ProposerAddress:    []byte{'a', 'b', 'c'},
+			LastResultsHash:    []byte{'a', 'b', 'c'}, EvidenceHash: []byte{'a', 'b', 'c'},
+			ProposerAddress: []byte{'a', 'b', 'c'},
 		}}
 		res := tmabci.ResponseBeginBlock{}
 

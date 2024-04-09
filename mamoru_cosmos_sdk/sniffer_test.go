@@ -55,7 +55,7 @@ func TestSnifferSmoke(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	streamingService := NewStreamingService(logger, sniffer)
+	streamingService := NewStreamingService(logger, sniffer, nil)
 	regBB := abci.RequestBeginBlock{}
 	resBB := abci.ResponseBeginBlock{}
 	err := streamingService.ListenBeginBlock(ctx, regBB, resBB)
