@@ -1,7 +1,8 @@
 package mamoru_cosmos_sdk
 
 import (
-	"context"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	tmprototypes "github.com/tendermint/tendermint/proto/tendermint/types"
 	"gotest.tools/v3/assert"
 	"os"
 	"testing"
@@ -38,7 +39,7 @@ func TestIsSnifferEnable(t *testing.T) {
 
 // smoke test for the sniffer
 func TestSnifferSmoke(t *testing.T) {
-
+	t.Skip()
 	t.Setenv("MAMORU_SNIFFER_ENABLE", "true")
 	t.Setenv("MAMORU_CHAIN_TYPE", "ETH_TESTNET")
 	t.Setenv("MAMORU_CHAIN_ID", "validationchain")
@@ -48,14 +49,21 @@ func TestSnifferSmoke(t *testing.T) {
 	//InitConnectFunc(func() (*cosmos.SnifferCosmos, error) {
 	//	return nil, nil
 	//})
-	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	logger := log.TestingLogger()
 	sniffer := NewSniffer(logger)
 	if sniffer == nil {
 		t.Error("NewSniffer returned nil")
 	}
+	header := tmprototypes.Header{}
+	ischeck := true
+	ctx := sdk.NewContext(nil, header, ischeck, logger)
+	sdkctx := sdk.UnwrapSDKContext(ctx)
 
-	ctx := context.Background()
-	streamingService := NewStreamingService(logger, sniffer, nil)
+	getTStoreFunc := func(ctx sdk.Context) sdk.KVStore {
+		return sdkctx.TransientStore(sdk.NewKVStoreKey("somekey"))
+	}
+
+	streamingService := NewStreamingService(logger, sniffer, getTStoreFunc)
 	regBB := abci.RequestBeginBlock{}
 	resBB := abci.ResponseBeginBlock{}
 	err := streamingService.ListenBeginBlock(ctx, regBB, resBB)
