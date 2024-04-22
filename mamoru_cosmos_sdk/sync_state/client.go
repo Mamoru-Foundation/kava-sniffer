@@ -89,7 +89,7 @@ func (sync *JSONRPCResponse) IsSync() bool {
 		return false
 	}
 
-	return sync.Result.SyncInfo.CatchingUp
+	return !sync.Result.SyncInfo.CatchingUp
 }
 
 type Client struct {

@@ -86,7 +86,7 @@ func TestIsSync(t *testing.T) {
 	sync := &JSONRPCResponse{
 		Result: Result{
 			SyncInfo: SyncInfo{
-				CatchingUp: true,
+				CatchingUp: false,
 			},
 		},
 	}
