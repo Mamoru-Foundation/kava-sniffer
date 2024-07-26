@@ -228,8 +228,8 @@ github.com/DataDog/zstd v1.5.0/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwS
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Mamoru-Foundation/ethermint v0.21.0-kava-v26.2-mamoru0 h1:epVusnoWpXYeiw8QHZAmwMcHImdP/Mz+C6Y43LRbyjI=
 github.com/Mamoru-Foundation/ethermint v0.21.0-kava-v26.2-mamoru0/go.mod h1:D8MKV53Ah21b+Bk78bQUwIwnOGu03TQ19buZXHgEujE=
-github.com/Mamoru-Foundation/mamoru-sniffer-go v0.13.6 h1:rU1QC6rVA3Mwczt9V2akYOfRpI+KUjaggmmQEoJYQ6c=
-github.com/Mamoru-Foundation/mamoru-sniffer-go v0.13.6/go.mod h1:u2UBuNW7Wxz5sL533/hygPYIt25EDGmWzoUuZ9XqtGo=
+github.com/Mamoru-Foundation/mamoru-sniffer-go v0.13.7 h1:M/BEa91PgtmBV+4tROOG8/12fu3YYd5NuIGH0wtDs/I=
+github.com/Mamoru-Foundation/mamoru-sniffer-go v0.13.7/go.mod h1:u2UBuNW7Wxz5sL533/hygPYIt25EDGmWzoUuZ9XqtGo=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Microsoft/go-winio v0.6.0/go.mod h1:cTAf44im0RAYeL23bpB+fzCyDH2MJiz2BO69KH/soAE=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
